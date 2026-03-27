@@ -7,6 +7,11 @@ const createJob = async (req, res, next) => {
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const jobCard = await jobService.createJobCard(req.body);
+    
+    const { vehicleId, customerId, ...rest } = req.body;
+    const jobData = { vehicle: vehicleId, customer: customerId, ...rest };
+    
+    const jobCard = await jobService.createJobCard(jobData);
     res.status(201).json({ success: true, data: jobCard });
   } catch (error) { next(error); }
 };
@@ -40,8 +45,14 @@ const assignMechanic = async (req, res, next) => {
     const { id } = req.params;
     const { mechanicId } = req.body;
     const updatedJob = await jobService.assignMechanic(id, mechanicId);
+const updateJobStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { stage, updatedBy } = req.body;
+    const updatedJob = await jobService.updateJobStage(id, stage, updatedBy);
     res.status(200).json({ success: true, data: updatedJob });
   } catch (error) { next(error); }
 };
 
 module.exports = { createJob, getJobs, getJobById, updateJobStatus, assignMechanic };
+module.exports = { createJob, getJobs, updateJobStatus };
